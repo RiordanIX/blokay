@@ -1,0 +1,122 @@
+#!/bin/sh
+
+title="Major's blog"
+sitename="blog.confirmedfacts.com"
+sharedir="share"
+templates="templates"
+drafts="$templates/.drafts"
+indext="index.upphtml"
+index="index.html"
+destdir="blog"
+header="$sharedir/header.upphtml"
+archivefile="$destdir/.htaccess"
+csst="$sharedir/s.uppcss"
+css="s.css"
+rsst="rss.uppxml"
+rss="rss.xml"
+sitemapt="sitemap.uppxml"
+sitemap="sitemap.xml"
+
+usage() {
+	echo "$0 static site system modified from Luke Smith's 'lb' <luke@lukesmith.xyz> using 'pp'"
+	echo "Usage:"
+	echo "    $0 n:    new draft"
+	echo "    $0 e:    edit draft"
+	echo "    $0 p:    publish/finalize draft"
+	echo "    $0 r:    revise published entry"
+	echo "    $0 t:    discard draft"
+	echo "    $0 d:    delete published entry"
+	echo "    $0 a:    Regenerate all the blog files, index, sitemap, and rss file"
+	echo ""
+	echo "Make sure to have your index.upphtml, rss.upphtml, and your $header files"
+	echo "formatted how you wish, default versions should have been provided for you."
+	echo ""
+	echo "$0 uses 'pp' (https://mkws.sh/pp.html), a pre-processor that allows embedding"
+	echo "'shell' commands directly in a template file, just make sure it's POSIX compliant!"
+	echo "Read more at the link above to find more information about 'pp' and ways you can"
+	echo "use it."
+}
+
+newpost() {
+	printf "Insert new blog title\\n\\t"
+	read title
+	echo "$title" | grep -q "\"" &&
+		echo "Double quotation marks (\") are not allowed in entry titles." &&
+		exit
+	url="$(echo "$title" |
+		iconv -cf UTF-8 -t ASCII//TRANSLIT |
+		tr -d '[:punct:]' |
+		tr '[:upper:]' '[:lower:]' |
+		tr ' ' '-' |
+		sed "s/-\+/-/g;s/\(^-\|-\$\)//g")"
+	echo "AddDescription \"$title\" \"$url.html\"" >>  "$archivefile"||
+		{ echo "Error: Is $archivefile writeable?"; exit; }
+	( [ -f "$drafts/$url.upphtml" ] || [ -f "$destdir/$url.html" ] ) &&
+		echo "There is already an existing draft or post of that same name/URL." && exit
+	$EDITOR "$drafts/$url.upphtml" ;
+}
+
+listandReturn() {
+	echo "Listing contents of $1"
+	count=`ls -1 "$1"/*html 2> /dev/null | wc -l`
+	case $count in
+		0) echo "There's nothing to $2." && exit 1 ;;
+		1) number=1 && echo "There's only one entry to $2."
+			echo "Defaulting selection to $(ls -rc "$1" | awk -F '/' '{print $NF}')" ;;
+		*) ls -rc "$1"/*html | awk -F '/' '{print $NF}' | nl
+			printf "Pick an entry by number to $2, or press Ctrl-C to cancel. "
+			read number ;;
+	esac
+	chosen="$(ls -rc "$1" | nl | grep -w " $number" | awk '{print $2}')"
+	basefile="$(basename "$chosen")" && base="${basefile%.*}"
+}
+
+genall() {
+	echo "Making blog files"
+	for x in `ls -1t "$templates"/*html`; do
+		basefile="$(basename "$x")" && base="${basefile%.*}"
+		htaccessentry=$(grep "$base.html" "$archivefile" )
+		realname="$(echo "$htaccessentry" | cut -d'"' -f2)"
+		destname=$(echo "$htaccessentry" | cut -d'"' -f4)
+		pp "$header" "$templates/$x" "$realname" "$archivefile" > $destdir/$destname
+	done
+	echo "Making $sitemap"
+	pp "$sitemapt" "$templates" "$sitename" "$destdir" > $sitemap
+	echo "Making $css"
+	pp "$csst" > $css
+	ln -rsf $css $destdir/$css
+}
+
+publish() {
+	mv "$drafts/$chosen" "$templates/"
+	pp "$rsst" "$sitename" "$templates" "$archivefile" "$destdir" > $rss
+	pp "$header" "$indext" "$title" "$archivefile" > "$index"
+	genall
+}
+
+confirm() {
+	printf "Really $1 '$base'? (y/N) "
+	read choice && echo "$choice" | grep -qi "^y$" || exit 1 ;
+}
+
+case "$1" in
+	a*) genall ;;
+	n*) newpost ;;
+	e*) listandReturn "$drafts" edit &&
+		"$EDITOR" "$drafts/$chosen" ;;
+	p*) listandReturn "$drafts" publish && publish ;;
+	t*) listandReturn "$drafts" trash &&
+		confirm trash &&
+		echo "$drafts/$chosen"
+		rm -f "$drafts/$chosen" &&
+		sed -i "/\"$base.html\"/d" "$archivefile"
+		echo "Draft deleted." ;;
+	d*) listandReturn "$destdir" delete &&
+		confirm delete &&
+		rm $destdir/$base.html &&
+		sed -i "/\"$base.html\"/d" "$archivefile" &&
+		genall ;;
+	r*) listandReturn "$destdir" revise &&
+		revise ;;
+	*) usage ;;
+esac

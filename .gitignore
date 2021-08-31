@@ -1,0 +1,7 @@
+*.html
+*.o
+bin/pp
+rss.xml
+s.css
+share/man
+sitemap.xml

@@ -1,0 +1,20 @@
+body {
+  background: #222;
+  color: #777;
+  font-family: Helvetica;
+  text-align: center;
+  margin: 0;
+}
+
+li, h3 {
+  text-align: left;
+  margin-left: 200px;
+}
+
+header {
+  padding: 20px 0;
+}
+
+nav, section {
+  padding: 200px 0;
+}

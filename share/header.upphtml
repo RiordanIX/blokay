@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang=${LANG%%_*}>
+<head>
+	<title>$2</title>
+	<meta charset=${LANG##*.}>
+	<meta name=viewport content='width=device-width'>
+	<link rel=icon href=favicon.ico type=image/x-icon>
+	<link rel=stylesheet href=s.css?$(lmt -f '%Y-%m-%dT%H:%M:%SZ' s.css | cut -d' ' -f1)>
+</head>
+
+<body>
+<header>
+<h3> Latest Articles </h3>
+<ul>
+#!
+for x in `ls -1t templates/*.upphtml | head -5 `
+do
+basefile=$(basename $x ) && base="${basefile%.*}"
+realname="$(grep "$base" "$3" | cut -d'"' -f2)"
+#!
+<li> <a href='$base.html'>$realname</a> </li>
+#!
+done
+#!
+</ul>
+</header>
+#!
+pp $1
+#!
+</body>
+
+</html>

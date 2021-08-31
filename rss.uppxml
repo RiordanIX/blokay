@@ -1,0 +1,32 @@
+<rss xmlns:atom='http://www.w3.org/2005/Atom' version='2.0'>
+<channel>
+<title>Major Taylor</title>
+<description>Major's rss feed</description>
+<language>en-us</language>
+<link>$1/rss.xml</link>
+<atom:link href='$1/rss.xml' rel='self' type='application/rss+xml'/>
+<image>
+<title>Major</title>
+<url>https://lukesmith.xyz/pix/portrait.jpg</url>
+<link>$1/rss.xml</link>
+</image>
+#!
+for f in `ls -t $2/*.upphtml | head -50`
+do
+n=$(basename $f | cut -d'.' -f1).html
+realname="$(grep "$n" "$3" | cut -d'"' -f2)"
+#!
+<item>
+<title>$realname</title>
+<guid>$1/$4/$n</guid>
+<link>$1/$4/$n</link>
+<pubDate>$(date -d "@$(stat -c '%Y' $f )" '+%a, %d %b %Y %H:%M:%S %z')</pubDate>
+<description>
+<![CDATA[ $(pp $f)
+]]></description>
+</item>
+#!
+done
+#!
+</channel>
+</rss>
