@@ -2,9 +2,11 @@
 ## Blogging SSG using shell templates using pp
 
 An easy blogging ssg that allows embedding shell scripts into your blog.
+The idea and most of the structure was inspired by [`lb`][lb], created by Luke
+Smith, along with [`mkws`][mkws], created by Adrian Emil Grigore.
 
 ## Usage
-Type `./blokay` without any arguments to bring up a usage display.
+Type `./blokay` without any arguments to display usage.
 
 ## Embedding shell scripts
 
@@ -55,5 +57,7 @@ to work. Any shell commands must be inside of `#!` blocks.
 ### `pp` installation
 `make bin/Makefile && make install bin/Makefile`
 
+[lb]: https://github.com/LukeSmithxyz/lb
+[mkws]: https://mkws.sh/
 [pp]: https://mkws.sh/pp.html
 [md4c]: https://github.com/mity/md4c
