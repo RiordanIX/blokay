@@ -17,8 +17,13 @@ for x in `ls -1t templates/*.upphtml | head -5 `
 do
 basefile=$(basename $x ) && base="${basefile%.*}"
 realname="$(grep "$base" "$3" | cut -d'"' -f2)"
+if [ "$1" = "index.upphtml" ] ; then
+	d="blog/"
+else
+	d=""
+fi
 #!
-<li> <a href='$base.html'>$realname</a> </li>
+<li> <a href='$d$base.html'>$realname</a> </li>
 #!
 done
 #!
