@@ -73,7 +73,7 @@ listandReturn() {
 }
 
 genall() {
-	pp -d "$rsst" "$sitename" "$templates" "$archivefile" "$destdir" > $rss
+	pp "$rsst" "$sitename" "$templates" "$archivefile" "$destdir" > $rss
 	pp "$header" "$indext" "$title" "$archivefile" > "$index"
 	echo "Making blog files"
 	for x in `ls -1t "$templates"/*html`; do
