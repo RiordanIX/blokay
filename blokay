@@ -108,6 +108,13 @@ confirm() {
 	read choice && echo "$choice" | grep -qi "^y$" || exit 1 ;
 }
 
+if ! type pp > /dev/null ; then
+	printf "'pp' is not installed, would you like to make it? (y/N) "
+	read choice
+	echo "$choice" | grep -qi "^y$" || exit 1
+	cd bin && make && cd ../
+fi
+
 case "$1" in
 	a*) genall ;;
 	n*) newpost ;;
