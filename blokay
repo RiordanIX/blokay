@@ -1,4 +1,5 @@
 #!/bin/sh
+PATH=./bin:"$PATH"
 
 title="Major's blog"
 sitename="blog.confirmedfacts.com"
@@ -72,13 +73,15 @@ listandReturn() {
 }
 
 genall() {
+	pp -d "$rsst" "$sitename" "$templates" "$archivefile" "$destdir" > $rss
+	pp "$header" "$indext" "$title" "$archivefile" > "$index"
 	echo "Making blog files"
 	for x in `ls -1t "$templates"/*html`; do
 		basefile="$(basename "$x")" && base="${basefile%.*}"
 		htaccessentry=$(grep "$base.html" "$archivefile" )
 		realname="$(echo "$htaccessentry" | cut -d'"' -f2)"
 		destname=$(echo "$htaccessentry" | cut -d'"' -f4)
-		pp "$header" "$templates/$x" "$realname" "$archivefile" > $destdir/$destname
+		pp "$header" "$x" "$realname" "$archivefile" > $destdir/$destname
 	done
 	echo "Making $sitemap"
 	pp "$sitemapt" "$templates" "$sitename" "$destdir" > $sitemap
@@ -89,9 +92,13 @@ genall() {
 
 publish() {
 	mv "$drafts/$chosen" "$templates/"
-	pp "$rsst" "$sitename" "$templates" "$archivefile" "$destdir" > $rss
-	pp "$header" "$indext" "$title" "$archivefile" > "$index"
 	genall
+}
+
+revise() {
+	mv "$templates/${chosen%.html}.upphtml" "$drafts/$chosen"
+	"$EDITOR" "$drafts/$chosen"
+	echo "Revision stored in $drafts. Publish as normal entry when desired."
 }
 
 confirm() {

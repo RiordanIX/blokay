@@ -11,7 +11,7 @@
 <link>$1/rss.xml</link>
 </image>
 #!
-for f in `ls -t $2/*.upphtml | head -50`
+for f in `ls -1t $2/*.upphtml | head -50`
 do
 n=$(basename $f | cut -d'.' -f1).html
 realname="$(grep "$n" "$3" | cut -d'"' -f2)"

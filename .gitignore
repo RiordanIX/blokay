@@ -1,5 +1,6 @@
 *.html
 *.o
+blokay/.htaccess
 bin/pp
 rss.xml
 s.css
