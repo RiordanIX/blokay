@@ -73,7 +73,10 @@ listandReturn() {
 }
 
 genall() {
-	pp "$rsst" "$sitename" "$templates" "$archivefile" "$destdir" > $rss
+	echo "Making $css"
+	pp "$csst" > $css
+	ln -rsf $css $destdir/$css
+	echo "Making html files"
 	pp "$header" "$indext" "$title" "$archivefile" > "$index"
 	echo "Making blog files"
 	for x in `ls -1t "$templates"/*html`; do
@@ -83,11 +86,10 @@ genall() {
 		destname=$(echo "$htaccessentry" | cut -d'"' -f4)
 		pp "$header" "$x" "$realname" "$archivefile" > $destdir/$destname
 	done
+	echo "Making $rss"
+	pp "$rsst" "$sitename" "$templates" "$archivefile" "$destdir" > $rss
 	echo "Making $sitemap"
 	pp "$sitemapt" "$templates" "$sitename" "$destdir" > $sitemap
-	echo "Making $css"
-	pp "$csst" > $css
-	ln -rsf $css $destdir/$css
 }
 
 publish() {
